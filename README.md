@@ -3,14 +3,14 @@
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-A consentor that presents the value of a (prefix) scope in the oauth-token and asks the user to confirm the value.
+A consentor that presents the value of a (prefix) scope and asks the user to confirm the value.
 
 This project provides an example of a consentor plugin for Curity Identity Server. The code shows how to configure and implement a custom consentor of type example-consentor. You can do basically anything in a plugin but this example is very basic and the resulting consentor will just show a pop-up for the user with information retrieved from the session created during login.
 
 ## System Requirements
-Curity Identity Server 5.2.0 and its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html> .
+Curity Identity Server 6.0.0 and its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html> .
 
-## Building the Pluging
+## Building the Plugin
 The source code is written entirely in Java. You will need Maven 3 and Java SDK 8 to be able to compile the plugin. 
 
 You can build the plugin by issuing the command ``mvn package``. This will produce a JAR file in the ``target`` directory. Use this JAR file during installation.
@@ -21,13 +21,16 @@ For a list of the dependencies and their versions, run ``mvn dependency:list``. 
 the plugin group; otherwise, they will not be accessible to this plugin and run-time errors will result.
 
 ## Creating the Example Consentor
-The easiest way to configure a new Consentor is using the Curity admin UI.
+The easiest way to configure a new consentor is using the Curity admin UI.
 
 - Go to the `Profiles` page. Select a profile of type Token Service Profile. We refer to it as the `Token Service Profile`. This is where the consentor instance should be created.
 - Navigate lower in the `General` section and at the `Consentors` sub-section click the `New consentor` button.
 - Once the pop up shows up, type a name/identifier for the consentor and select the type `Example`. Click `Next`.
 - Enter the prefix of the scopes that will be presented to the user.
 - Commit the configuration changes.
+
+![Update Example Consentor](docs/images/update-example-consentor.png?raw=true "Update Example Consentor")
+
 
 ## Using the Example Consentor
 Assign the Example Consentor to a client and make sure the client may use the scope defined in the configuration of the Example Consentor. When a user logs in using the client Curity Identity Server will ask for consent before issuing any tokens. 
@@ -38,7 +41,16 @@ Assign the Example Consentor to a client and make sure the client may use the sc
 - In the list of consentors add the consentor configured above.
 - Commit the configuration changes.
 
-The consentor is now ready. When a user logs in with the client Curity Identity Server will show a prompt asking the user for consent.
+![Configure Client with Example Consentor](docs/images/configure-client-with-example-consentor.png?raw=true "Enable Consentors on Client")
+
+
+The consentor is now ready. 
+
+## Testing
+When a user logs in with the client Curity Identity Server will show a prompt asking the user for consent. The screen will look similar to this one:
+
+![Consent Screen](docs/images/example-consentor-screen.png?raw=true "Consent Screen")
+
 
 ### Note
 This code is just for demonstration. Its purpose is to show the basic features of a consent plugin and provide basic classes. It is by no means complete and has known limitations. For example, it is missing an opt-out workflow and lacks error handling, but it includes everything to get started with a consent plugin.
