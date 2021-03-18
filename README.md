@@ -34,11 +34,11 @@ Assign the Example Consentor to a client and make sure the client may use the sc
 
 - In `Token Service Profile` open `Clients` and select a client of your choice. We will use a client called `www`.
 - Navigate to the section called `OAuth\OpenID Settings` and scroll to the `User Consent` part of the section.
-- Enable `User Consent` and `Only Consentors` since we only want to use the custom consentor from this example only and not the built-in screens.
+- Enable `User Consent` and `Only Consentors` since we only want to use the custom consentor from this example and not the built-in screens.
 - In the list of consentors add the consentor configured above.
 - Commit the configuration changes.
 
-The consentor is now ready. When a user now logs in with the client Curity Identity Server will show a prompt asking the user for consent.
+The consentor is now ready. When a user logs in with the client Curity Identity Server will show a prompt asking the user for consent.
 
 ### Note
 This code is just for demonstration. Its purpose is to show the basic features of a consent plugin and provide basic classes. It is by no means complete and has known limitations. For example, it is missing an opt-out workflow and lacks error handling, but it includes everything to get started with a consent plugin.
