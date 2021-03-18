@@ -44,7 +44,7 @@ Assign the Example Consentor to a client and make sure the client may use the sc
 ![Configure Client with Example Consentor](docs/images/configure-client-with-example-consentor.png?raw=true "Enable Consentors on Client")
 
 
-The consentor is now ready. 
+The consentor is now ready to be used. 
 
 ## Testing
 When a user logs in with the client Curity Identity Server will show a prompt asking the user for consent. The screen will look similar to this one:
