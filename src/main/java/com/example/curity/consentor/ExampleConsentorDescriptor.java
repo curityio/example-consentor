@@ -29,7 +29,7 @@ public final class ExampleConsentorDescriptor implements ConsentorPluginDescript
 
     @Override
     public Map<String, Class<? extends ConsentorCompletionRequestHandler<?>>> getConsentorRequestHandlerTypes() {
-        Map exampleRequestHandlerTypes = new HashMap<String, Class<? extends  ConsentorCompletionRequestHandler<?>>>();
+        Map<String, Class<? extends  ConsentorCompletionRequestHandler<?>>> exampleRequestHandlerTypes = new HashMap<>();
         exampleRequestHandlerTypes.put("index", ExampleConsentorHandler.class);
         return exampleRequestHandlerTypes;
     }

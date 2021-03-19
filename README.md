@@ -5,7 +5,10 @@
 
 A consentor that presents the value of a (prefix) scope and asks the user to confirm the value.
 
-This project provides an example of a consentor plugin for Curity Identity Server. The code shows how to configure and implement a custom consentor of type example-consentor. You can do basically anything in a plugin but this example is very basic and the resulting consentor will just show a pop-up for the user with information retrieved from the session created during login.
+This project provides an example of a consentor plugin for Curity Identity Server. The code shows how to configure and implement a custom consentor of type example-consentor. You can do basically anything in a plugin. 
+
+In this example we show how you can call an API for getting data during an approval flow. We also show how to present this data to the user.
+The resulting consentor will use an identifier from the user's session and retrieve more data based on this identifier from an external API. We assume that the identifier is part of a prefix scope used by the client. We refer to the identifier as the transaction id.
 
 ## System Requirements
 Curity Identity Server 6.0.0 and its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html> .
@@ -17,8 +20,7 @@ You can build the plugin by issuing the command ``mvn package``. This will produ
 
 ## Installation
 As of now there is no binary version of the plugin yet. Before installing compile the code and create a package (see above). The resulting JAR file and its dependencies are then copied in the directory `${IDSVR_HOME}/usr/share/plugins/consent.exampleconsentor` on each node, including the admin node. You can replace the plugin group `consent.exampleconsentor` with any other arbitrary name of your choice.
-For a list of the dependencies and their versions, run ``mvn dependency:list``. Ensure that all of these are installed in
-the plugin group; otherwise, they will not be accessible to this plugin and run-time errors will result.
+For a list of the dependencies and their versions, run ``mvn dependency:list``. Ensure that all of these are installed in the plugin group; otherwise, they will not be accessible to this plugin and run-time errors will result.
 
 ## Creating the Example Consentor
 The easiest way to configure a new consentor is using the Curity admin UI.
@@ -26,10 +28,9 @@ The easiest way to configure a new consentor is using the Curity admin UI.
 - Go to the `Profiles` page. Select a profile of type Token Service Profile. We refer to it as the `Token Service Profile`. This is where the consentor instance should be created.
 - Navigate lower in the `General` section and at the `Consentors` sub-section click the `New consentor` button.
 - Once the pop up shows up, type a name/identifier for the consentor and select the type `Example`. Click `Next`.
-- Enter the prefix of the scopes that will be presented to the user.
+- Enter the prefix of the scope for the transaction id that the client uses during login.
+- Point out the location of the API used for the consent data.
 - Commit the configuration changes.
-
-![Update Example Consentor](docs/images/update-example-consentor.png?raw=true "Update Example Consentor")
 
 
 ## Using the Example Consentor
@@ -47,7 +48,7 @@ Assign the Example Consentor to a client and make sure the client may use the sc
 The consentor is now ready to be used. 
 
 ## Testing
-When a user logs in with the client Curity Identity Server will show a prompt asking the user for consent. The screen will look similar to this one:
+When a user logs in with the client Curity Identity Server will show a prompt asking the user for consent. The text on the consent screen was retrieved from the external API. The screen will look similar to this one:
 
 ![Consent Screen](docs/images/example-consentor-screen.png?raw=true "Consent Screen")
 
