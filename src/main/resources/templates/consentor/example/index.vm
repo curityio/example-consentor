@@ -15,7 +15,7 @@
 
 <form method="post">
     <input type="hidden" name="state" value="$_state" />
-    <p>We need your consent to access the following data:</p>
+    <p>Please approve.</p>
     <p>$!_textToDisplay</p>
     <button id="submit-button" type="submit" class="button button-fullwidth $!button_color mt2">OK</button>
 </form>

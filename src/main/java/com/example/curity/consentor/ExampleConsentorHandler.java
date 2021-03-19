@@ -46,9 +46,8 @@ public class ExampleConsentorHandler implements ConsentorCompletionRequestHandle
 
     @Override
     public Request preProcess(Request request, Response response) {
-
-        //response.setResponseModel(ResponseModel.templateResponseModel(Collections.emptyMap(), "index"), Response.ResponseModelScope.ANY);
-        response.setResponseModel(ResponseModel.templateResponseModel(Collections.singletonMap("_textToDisplay", _sessionManager.get("textToDisplay").getValue())
+        response.setResponseModel(ResponseModel.templateResponseModel(
+                Collections.singletonMap("_textToDisplay", _sessionManager.get("textToDisplay").getValue())
                 , "index"), Response.ResponseModelScope.ANY);
         return request;
     }
