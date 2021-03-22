@@ -3,12 +3,12 @@
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-A consentor that presents the value of a (prefix) scope and asks the user to confirm the value.
+A consentor that takes the value of a (prefix) scope, queries an API for details and presents a screen to the user for confirmation.
 
 This project provides an example of a consentor plugin for Curity Identity Server. The code shows how to configure and implement a custom consentor of type example-consentor. You can do basically anything in a plugin. 
 
 In this example we show how you can call an API for getting data during an approval flow. We also show how to present this data to the user.
-The resulting consentor will use an identifier from the user's session and retrieve more data based on this identifier from an external API. We assume that the identifier is part of a prefix scope used by the client. We refer to the identifier as the transaction id.
+The resulting consentor will use an id from the user's session and take the value to query an external API. We assume that the id is part of a prefix scope used by the client. The prefix in this example is called `transactionId`.
 
 ## System Requirements
 Curity Identity Server 6.0.0 and its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html> .
@@ -16,22 +16,24 @@ Curity Identity Server 6.0.0 and its system requirements <https://developer.curi
 ## Building the Plugin
 The source code is written entirely in Java. You will need Maven 3 and Java SDK 8 to be able to compile the plugin. 
 
-You can build the plugin by issuing the command ``mvn package``. This will produce a JAR file in the ``target`` directory. Use this JAR file during installation.
+You can build the plugin by issuing the command `mvn package`. This will produce a JAR file in the `target` directory. Use this JAR file during installation.
 
 ## Installation
 As of now there is no binary version of the plugin yet. Before installing compile the code and create a package (see above). The resulting JAR file and its dependencies are then copied in the directory `${IDSVR_HOME}/usr/share/plugins/consent.exampleconsentor` on each node, including the admin node. You can replace the plugin group `consent.exampleconsentor` with any other arbitrary name of your choice.
-For a list of the dependencies and their versions, run ``mvn dependency:list``. Ensure that all of these are installed in the plugin group; otherwise, they will not be accessible to this plugin and run-time errors will result.
+For a list of the dependencies and their versions, run `mvn dependency:list`. Ensure that all of these are installed in the plugin group; otherwise, they will not be accessible to this plugin and run-time errors will result.
 
 ## Creating the Example Consentor
 The easiest way to configure a new consentor is using the Curity admin UI.
 
-- Go to the `Profiles` page. Select a profile of type Token Service Profile. We refer to it as the `Token Service Profile`. This is where the consentor instance should be created.
+- Go to the `Profiles` page. Select a profile of type Token Service Profile. This is where the consentor instance should be created.
 - Navigate lower in the `General` section and at the `Consentors` sub-section click the `New consentor` button.
-- Once the pop up shows up, type a name/identifier for the consentor and select the type `Example`. Click `Next`.
-- Enter the prefix of the scope for the transaction id that the client uses during login.
-- Point out the location of the API used for the consent data.
+- Once the pop-up shows up, type a name/identifier for the consentor and select the type `Example`. Click `Next`.
+- Enter the prefix of the scope for the transaction id that the client will request during login. The plugin will take the first scope that starts with the prefix and parse the value (suffix).
+- Configure the API endpoint to query. In this example the query will look like `<protocol>://<hostname>:<port><path>?transactionId=<value from scope>` where `<value from scope>` is the suffix from the scope as described above. 
+- Select an HTTP client that will be used for communicating with the API. The HTTP client defines among others the protocol to be used, i.e. HTTP or HTTPS.
 - Commit the configuration changes.
 
+![Create and update the Example Consentor](docs/images/update-example-consentor.png?raw=true "Update Example Consentor")
 
 ## Using the Example Consentor
 Assign the Example Consentor to a client and make sure the client may use the scope defined in the configuration of the Example Consentor. When a user logs in using the client Curity Identity Server will ask for consent before issuing any tokens. 
@@ -39,7 +41,7 @@ Assign the Example Consentor to a client and make sure the client may use the sc
 - In `Token Service Profile` open `Clients` and select a client of your choice. We will use a client called `www`.
 - Navigate to the section called `OAuth\OpenID Settings` and scroll to the `User Consent` part of the section.
 - Enable `User Consent` and `Only Consentors` since we only want to use the custom consentor from this example and not the built-in screens.
-- In the list of consentors add the consentor configured above.
+- In the list of consentors add the Example Consentor configured above.
 - Commit the configuration changes.
 
 ![Configure Client with Example Consentor](docs/images/configure-client-with-example-consentor.png?raw=true "Enable Consentors on Client")
@@ -52,9 +54,31 @@ When a user logs in with the client Curity Identity Server will show a prompt as
 
 ![Consent Screen](docs/images/example-consentor-screen.png?raw=true "Consent Screen")
 
+## Under the Hood
+### Assumptions
+The plugin expects the API to support the query-parameter `transactionId`. The response from the API is a JSON array with the objects that match the query. The plugin then reads the first JSON object in the list. It takes the value of the attribute `total_price` and includes it in the confirmation screen. 
+
+### Calling the API
+ The request to the API looks similar to the following one but changes according to the configuration of the consentor plugin:
+
+```
+  GET http://hostname:80/orders?transactionId=123
+  
+  HTTP/1.1 200 OK
+  Content-Type: application/json; charset=utf-8 
+  [
+    {
+      "id": 123,
+      "item_count": 2,
+      "total_price": 198,
+      "status": "created",
+      "transactionId": 123
+    }
+  ]
+```
 
 ### Note
-This code is just for demonstration. Its purpose is to show the basic features of a consent plugin and provide basic classes. It is by no means complete and has known limitations. For example, it is missing an opt-out workflow and lacks error handling, but it includes everything to get started with a consent plugin.
+This code is just for demonstration. Its purpose is to show the basic features of a consent plugin and provide basic classes. It is by no means complete and has known limitations. For example, it is missing an opt-out workflow, lacks error handling and has hardcoded values, but it includes everything to get started with a consent plugin.
 
 #### License
 

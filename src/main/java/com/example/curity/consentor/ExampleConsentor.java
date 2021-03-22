@@ -20,6 +20,7 @@ import java.util.Optional;
 public final class ExampleConsentor implements Consentor
 {
     public static String APPROVED = "exampleConsentorApproved";
+    private final String _scopePrefix;
     private final ExampleConsentorConfig _configuration;
     private final SessionManager _sessionManager;
     private final WebServiceClient _webServiceClient;
@@ -31,6 +32,7 @@ public final class ExampleConsentor implements Consentor
         _sessionManager = configuration.getSessionManager();
         _webServiceClient = configuration.getWebServiceClient();
         _jsonService = configuration.getJsonService();
+        _scopePrefix = configuration.getScopePrefix();
 
         // See examples of consentors on GitHub: https://github.com/search?q=topic%3Aconsentor+org%3Acurityio
     }
@@ -80,14 +82,13 @@ public final class ExampleConsentor implements Consentor
     }
 
     private Optional<String> getTransactionId(ConsentAttributes consentAttributes) {
-        String scopePrefix = _configuration.getScopePrefix() + "_";
         Collection<String> scopes = consentAttributes.getScopeNames();
 
         return scopes.stream()
                 .filter((scope -> scope
-                .startsWith(scopePrefix)))
+                .startsWith(_scopePrefix)))
                 .findFirst()
-                .map(scope -> scope.replace(scopePrefix,""));
+                .map(scope -> scope.replace(_scopePrefix,""));
     }
 
     private Optional<String> getTextToDisplay(Optional<String> transactionId) {
@@ -98,10 +99,7 @@ public final class ExampleConsentor implements Consentor
 
             HttpResponse apiResponse = _webServiceClient.request().get().response();
             if (apiResponse.statusCode() == 200) {
-                //Map<String, Object> jsonObjectMap = apiResponse.body(HttpResponse.asJsonObject(_configuration.getJsonService()));
-                //textToDisplay = "Do you want to order for " + jsonObjectMap.get("total_price") + " SEK?";
                 String jsonResponse = apiResponse.body(HttpResponse.asString());
-//                String jsonResponse = "[{\"id\": 123, \"item_count\": 2,\"total_price\": 198, \"status\": \"created\", \"transactionId\": 123}]";
                 List<?> jsonList = _jsonService.fromJsonArray(jsonResponse);
                 Optional<Map> order = jsonList.stream().map(Map.class::cast).findFirst();
 
