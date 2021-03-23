@@ -20,11 +20,12 @@ import se.curity.identityserver.sdk.web.Request;
 import se.curity.identityserver.sdk.web.Response;
 import se.curity.identityserver.sdk.web.ResponseModel;
 
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
-public class ExampleConsentorHandler implements ConsentorCompletionRequestHandler<Request>{
-
+public class ExampleConsentorHandler implements ConsentorCompletionRequestHandler<Request>
+{
     private SessionManager _sessionManager;
 
     public ExampleConsentorHandler(ExampleConsentorConfig config) {
@@ -46,9 +47,11 @@ public class ExampleConsentorHandler implements ConsentorCompletionRequestHandle
 
     @Override
     public Request preProcess(Request request, Response response) {
-        response.setResponseModel(ResponseModel.templateResponseModel(
-                Collections.singletonMap("_textToDisplay", _sessionManager.get("textToDisplay").getValue())
-                , "index"), Response.ResponseModelScope.ANY);
+        Map<String, Object> templateVariables = new HashMap<>();
+        templateVariables.put("_price", _sessionManager.get("price").getValue());
+        templateVariables.put("_currency", _sessionManager.get("currency").getValue());
+        response.setResponseModel(ResponseModel.templateResponseModel(templateVariables, "index")
+                , Response.ResponseModelScope.ANY);
         return request;
     }
 }

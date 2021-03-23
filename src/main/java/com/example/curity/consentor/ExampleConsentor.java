@@ -33,7 +33,6 @@ public final class ExampleConsentor implements Consentor
         _webServiceClient = configuration.getWebServiceClient();
         _jsonService = configuration.getJsonService();
         _scopePrefix = configuration.getScopePrefix();
-
         // See examples of consentors on GitHub: https://github.com/search?q=topic%3Aconsentor+org%3Acurityio
     }
 
@@ -46,24 +45,24 @@ public final class ExampleConsentor implements Consentor
     @Override
     public ConsentorResult apply(ConsentAttributes consentAttributes, String consentId)
     {
-        Optional<String> transactionId = getTransactionId(consentAttributes);
-        Optional<String> textToDisplay = getTextToDisplay(transactionId);
-
-        if (textToDisplay.isPresent()) {
-            _sessionManager.put(Attribute.of(AttributeName.of("textToDisplay"),
-                    textToDisplay.get()));
-        } else {
-            return ConsentorResult.unsuccessfulResult("Cannot find order.", ErrorCode.EXTERNAL_SERVICE_ERROR);
-        }
-
         if (isCompleted()) {
             return ConsentorResult.success(ConsentorResultAttributes.of(
                     Attribute.of("client_id", consentAttributes.getClientId()),
                     Attribute.of("subject", consentAttributes.getAuthenticationAttributes().getSubject()),
-                    Attribute.of("consentor_id", _configuration.id())
+                    Attribute.of("consentor_id", _configuration.id()),
+                    _sessionManager.get("price") // That's what the user consented to.
             ));
-        }   else {
-            return ConsentorResult.pendingWithPromptUserCompletion();
+        }  else {
+            Optional<String> transactionId = getTransactionId(consentAttributes);
+            Optional<Integer> price = getPriceForTransaction(transactionId);
+
+            if (price.isPresent()) {
+                _sessionManager.put(Attribute.of(AttributeName.of("price"), price.get()));
+                _sessionManager.put(Attribute.of(AttributeName.of("currency"), "SEK"));
+                return ConsentorResult.pendingWithPromptUserCompletion();
+            } else {
+                return ConsentorResult.unsuccessfulResult("Cannot find order.", ErrorCode.EXTERNAL_SERVICE_ERROR);
+            }
         }
     }
 
@@ -91,8 +90,8 @@ public final class ExampleConsentor implements Consentor
                 .map(scope -> scope.replace(_scopePrefix,""));
     }
 
-    private Optional<String> getTextToDisplay(Optional<String> transactionId) {
-        Optional<String> textToDisplay = Optional.empty();
+    private Optional<Integer> getPriceForTransaction(Optional<String> transactionId) {
+        Optional<Integer> price = Optional.empty();
 
         if (transactionId.isPresent()) {
             _webServiceClient.withQuery(String.format("transactionId=%s", transactionId.get()));
@@ -104,11 +103,11 @@ public final class ExampleConsentor implements Consentor
                 Optional<Map> order = jsonList.stream().map(Map.class::cast).findFirst();
 
                 if (order.isPresent()) {
-                    textToDisplay = Optional.of("Do you want to order for " + order.get().get("total_price") + " SEK?");
+                    price = Optional.of((Integer) order.get().get("total_price"));
                 }
             }
         }
 
-        return textToDisplay;
+        return price;
     }
 }

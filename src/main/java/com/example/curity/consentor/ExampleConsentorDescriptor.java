@@ -18,7 +18,7 @@ public final class ExampleConsentorDescriptor implements ConsentorPluginDescript
     @Override
     public String getPluginImplementationType()
     {
-        return "example";
+        return "price-consent";
     }
 
     @Override

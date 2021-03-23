@@ -13,10 +13,10 @@
 
 #define ($_body)
 
-<form method="post">
+<form method="post" action="">
     <input type="hidden" name="state" value="$_state" />
     <p>Please approve.</p>
-    <p>$!_textToDisplay</p>
+    <p>Do you want to order for $!_price $!_currency?</p>
     <button id="submit-button" type="submit" class="button button-fullwidth $!button_color mt2">OK</button>
 </form>
 #end
