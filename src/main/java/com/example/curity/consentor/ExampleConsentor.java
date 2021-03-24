@@ -13,6 +13,8 @@ import se.curity.identityserver.sdk.service.SessionManager;
 import se.curity.identityserver.sdk.service.WebServiceClient;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -94,9 +96,14 @@ public final class ExampleConsentor implements Consentor
         Optional<Integer> price = Optional.empty();
 
         if (transactionId.isPresent()) {
-            _webServiceClient.withQuery(String.format("transactionId=%s", transactionId.get()));
+            Map<String, Collection<String>> queryParameters = new HashMap<>();
+            queryParameters.put("transactionId", Collections.singleton(transactionId.get()));
 
-            HttpResponse apiResponse = _webServiceClient.request().get().response();
+            HttpResponse apiResponse = _webServiceClient.withQueries(
+                    queryParameters)
+                    .request()
+                    .get()
+                    .response();
             if (apiResponse.statusCode() == 200) {
                 String jsonResponse = apiResponse.body(HttpResponse.asString());
                 List<?> jsonList = _jsonService.fromJsonArray(jsonResponse);

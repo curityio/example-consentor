@@ -26,7 +26,7 @@ import java.util.Optional;
 
 public class ExampleConsentorHandler implements ConsentorCompletionRequestHandler<Request>
 {
-    private SessionManager _sessionManager;
+    private final SessionManager _sessionManager;
 
     public ExampleConsentorHandler(ExampleConsentorConfig config) {
         this._sessionManager = config.getSessionManager();
@@ -41,7 +41,6 @@ public class ExampleConsentorHandler implements ConsentorCompletionRequestHandle
     public Optional<ConsentorCompletionResult> post(Request request, Response response) {
         _sessionManager.put(Attribute.of(AttributeName.of(
                 ExampleConsentor.APPROVED), true));
-        
         return Optional.of(ConsentorCompletionResult.complete());
     }
 
