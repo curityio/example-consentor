@@ -21,7 +21,10 @@ import java.util.Optional;
 
 public final class ExampleConsentor implements Consentor
 {
-    public static String APPROVED = "exampleConsentorApproved";
+    public static String SESSION_ATTRIBUTE_NAME_APPROVED = "exampleConsentorApproved";
+    public static String SESSION_ATTRIBUTE_NAME_PRICE = "price";
+    public static String SESSION_ATTRIBUTE_NAME_CURRENCY = "currency";
+
     private final String _scopePrefix;
     private final ExampleConsentorConfig _configuration;
     private final SessionManager _sessionManager;
@@ -47,20 +50,23 @@ public final class ExampleConsentor implements Consentor
     @Override
     public ConsentorResult apply(ConsentAttributes consentAttributes, String consentId)
     {
-        if (isCompleted()) {
+        if (isCompleted(consentId)) {
+            Attribute price = _sessionManager.get(consentId + SESSION_ATTRIBUTE_NAME_PRICE);
+
+            cleanSessionManager(consentId);
             return ConsentorResult.success(ConsentorResultAttributes.of(
                     Attribute.of("client_id", consentAttributes.getClientId()),
                     Attribute.of("subject", consentAttributes.getAuthenticationAttributes().getSubject()),
                     Attribute.of("consentor_id", _configuration.id()),
-                    _sessionManager.get("price") // That's what the user consented to.
+                    price // That's what the user consented to.
             ));
         }  else {
             Optional<String> transactionId = getTransactionId(consentAttributes);
             Optional<Integer> price = getPriceForTransaction(transactionId);
 
             if (price.isPresent()) {
-                _sessionManager.put(Attribute.of(AttributeName.of("price"), price.get()));
-                _sessionManager.put(Attribute.of(AttributeName.of("currency"), "SEK"));
+                _sessionManager.put(Attribute.of(AttributeName.of(consentId + SESSION_ATTRIBUTE_NAME_PRICE), price.get()));
+                _sessionManager.put(Attribute.of(AttributeName.of(consentId + SESSION_ATTRIBUTE_NAME_CURRENCY), "SEK"));
                 return ConsentorResult.pendingWithPromptUserCompletion();
             } else {
                 return ConsentorResult.unsuccessfulResult("Cannot find order.", ErrorCode.EXTERNAL_SERVICE_ERROR);
@@ -73,8 +79,8 @@ public final class ExampleConsentor implements Consentor
      * But you can implement any other logic here such as making calls to an API.
      * @return Returns true if the user approved the request.
      */
-    private boolean isCompleted() {
-        Attribute userApproval = _sessionManager.get(APPROVED);
+    private boolean isCompleted(String consentId) {
+        Attribute userApproval = _sessionManager.get(consentId + SESSION_ATTRIBUTE_NAME_APPROVED);
         if (userApproval != null && userApproval.hasValueOfType(Boolean.class)) {
             return userApproval.getValueOfType(Boolean.class);
         } else {
@@ -116,5 +122,15 @@ public final class ExampleConsentor implements Consentor
         }
 
         return price;
+    }
+
+    /**
+     * Clean the session attributes used by this consent transaction
+     * @param consentId
+     */
+    private void cleanSessionManager(String consentId) {
+        _sessionManager.remove(consentId + SESSION_ATTRIBUTE_NAME_APPROVED);
+        _sessionManager.remove(consentId + SESSION_ATTRIBUTE_NAME_CURRENCY);
+        _sessionManager.remove(consentId + SESSION_ATTRIBUTE_NAME_PRICE);
     }
 }

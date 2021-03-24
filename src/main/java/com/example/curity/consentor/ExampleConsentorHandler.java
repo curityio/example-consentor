@@ -15,6 +15,7 @@ import se.curity.identityserver.sdk.attribute.Attribute;
 import se.curity.identityserver.sdk.attribute.AttributeName;
 import se.curity.identityserver.sdk.oauth.consent.ConsentorCompletionRequestHandler;
 import se.curity.identityserver.sdk.oauth.consent.ConsentorCompletionResult;
+import se.curity.identityserver.sdk.oauth.consent.IntermediateConsentState;
 import se.curity.identityserver.sdk.service.SessionManager;
 import se.curity.identityserver.sdk.web.Request;
 import se.curity.identityserver.sdk.web.Response;
@@ -27,9 +28,11 @@ import java.util.Optional;
 public class ExampleConsentorHandler implements ConsentorCompletionRequestHandler<Request>
 {
     private final SessionManager _sessionManager;
+    private final String _consentId;
 
-    public ExampleConsentorHandler(ExampleConsentorConfig config) {
+    public ExampleConsentorHandler(ExampleConsentorConfig config, IntermediateConsentState intermediateConsentState) {
         this._sessionManager = config.getSessionManager();
+        this._consentId = intermediateConsentState.getTransactionId();;
     }
 
     @Override
@@ -40,15 +43,16 @@ public class ExampleConsentorHandler implements ConsentorCompletionRequestHandle
     @Override
     public Optional<ConsentorCompletionResult> post(Request request, Response response) {
         _sessionManager.put(Attribute.of(AttributeName.of(
-                ExampleConsentor.APPROVED), true));
+                _consentId + ExampleConsentor.SESSION_ATTRIBUTE_NAME_APPROVED)
+                , true));
         return Optional.of(ConsentorCompletionResult.complete());
     }
 
     @Override
     public Request preProcess(Request request, Response response) {
         Map<String, Object> templateVariables = new HashMap<>();
-        templateVariables.put("_price", _sessionManager.get("price").getValue());
-        templateVariables.put("_currency", _sessionManager.get("currency").getValue());
+        templateVariables.put("_price", _sessionManager.get(_consentId + ExampleConsentor.SESSION_ATTRIBUTE_NAME_PRICE).getValue());
+        templateVariables.put("_currency", _sessionManager.get(_consentId + ExampleConsentor.SESSION_ATTRIBUTE_NAME_CURRENCY).getValue());
         response.setResponseModel(ResponseModel.templateResponseModel(templateVariables, "index")
                 , Response.ResponseModelScope.ANY);
         return request;
