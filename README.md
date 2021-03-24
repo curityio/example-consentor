@@ -3,12 +3,12 @@
 [![Quality](https://img.shields.io/badge/quality-experiment-red)](https://curity.io/resources/code-examples/status/)
 [![Availability](https://img.shields.io/badge/availability-source-blue)](https://curity.io/resources/code-examples/status/)
 
-A consentor that takes the value of a (prefix) scope, queries an API for details and presents a screen to the user for confirmation.
+A Consentor that takes the value of a (prefix) scope, queries an API for details and presents a screen to the user for confirmation.
 
-This project provides an example of a consentor plugin for Curity Identity Server. The code shows how to configure and implement a custom consentor of type example-consentor. You can do basically anything in a plugin. 
+This project provides an example of a Consentor plugin for Curity Identity Server. The code shows how to configure and implement a custom Consentor of type `price-consent`. You can do basically anything in a plugin. 
 
 In this example we show how you can call an API for getting data during an approval flow. We also show how to present this data to the user.
-The resulting consentor will use an id from the user's session and take the value to query an external API. We assume that the id is part of a prefix scope used by the client. The prefix in this example is called `transactionId`.
+The resulting Consentor will use an id from the user's session and take the value to query an external API. We assume that the id is part of a prefix scope used by the client. The prefix in this example is called `transactionId`.
 
 ## System Requirements
 Curity Identity Server 6.0.0 and its system requirements <https://developer.curity.io/docs/latest/system-admin-guide/system-requirements.html> .
@@ -23,11 +23,11 @@ As of now there is no binary version of the plugin yet. Before installing compil
 For a list of the dependencies and their versions, run `mvn dependency:list`. Ensure that all of these are installed in the plugin group; otherwise, they will not be accessible to this plugin and run-time errors will result.
 
 ## Creating the Example Consentor
-The easiest way to configure a new consentor is using the Curity admin UI.
+The easiest way to configure a new Consentor is using the Curity admin UI.
 
-- Go to the `Profiles` page. Select a profile of type Token Service Profile. This is where the consentor instance should be created.
+- Go to the `Profiles` page. Select a profile of type Token Service Profile. This is where the Consentor instance should be created.
 - Navigate lower in the `General` section and at the `Consentors` sub-section click the `New consentor` button.
-- Once the pop-up shows up, type a name/identifier for the consentor and select the type `Example`. Click `Next`.
+- Once the pop-up shows up, type a name/identifier for the Consentor and select the type `Price Consent`. Click `Next`.
 - Enter the prefix of the scope for the transaction id that the client will request during login. The plugin will take the first scope that starts with the prefix and parse the value (suffix).
 - Configure the API endpoint to query. In this example the query will look like `<protocol>://<hostname>:<port><path>?transactionId=<value from scope>` where `<value from scope>` is the suffix from the scope as described above. 
 - Select an HTTP client that will be used for communicating with the API. The HTTP client defines among others the protocol to be used, i.e. HTTP or HTTPS.
@@ -40,14 +40,14 @@ Assign the Example Consentor to a client and make sure the client may use the sc
 
 - In `Token Service Profile` open `Clients` and select a client of your choice. We will use a client called `www`.
 - Navigate to the section called `OAuth\OpenID Settings` and scroll to the `User Consent` part of the section.
-- Enable `User Consent` and `Only Consentors` since we only want to use the custom consentor from this example and not the built-in screens.
-- In the list of consentors add the Example Consentor configured above.
+- Enable `User Consent` and `Only Consentors` since we only want to use the custom Consentor from this example and not the built-in screens.
+- In the list of Consentors add the Example Consentor configured above.
 - Commit the configuration changes.
 
 ![Configure Client with Example Consentor](docs/images/configure-client-with-example-consentor.png?raw=true "Enable Consentors on Client")
 
 
-The consentor is now ready to be used. 
+The Consentor is now ready to be used. 
 
 ## Testing
 When a user logs in with the client Curity Identity Server will show a prompt asking the user for consent. The text on the consent screen was retrieved from the external API. The screen will look similar to this one:
@@ -59,7 +59,7 @@ When a user logs in with the client Curity Identity Server will show a prompt as
 The plugin expects the API to support the query-parameter `transactionId`. The response from the API is a JSON array with the objects that match the query. The plugin then reads the first JSON object in the list. It takes the value of the attribute `total_price` and includes it in the confirmation screen. 
 
 ### Calling the API
- The request to the API looks similar to the following one but changes according to the configuration of the consentor plugin:
+ The request to the API looks similar to the following one but changes according to the configuration of the Consentor plugin:
 
 ```
   GET http://hostname:80/orders?transactionId=123
@@ -78,7 +78,7 @@ The plugin expects the API to support the query-parameter `transactionId`. The r
 ```
 
 ### Note
-This code is just for demonstration. Its purpose is to show the basic features of a consent plugin and provide basic classes. It is by no means complete and has known limitations. For example, it is missing an opt-out workflow, lacks error handling and has hardcoded values, but it includes everything to get started with a consent plugin.
+This code is just for demonstration. Its purpose is to show the basic features of a consent plugin and provide basic classes. It is by no means complete and has known limitations. For example, it is missing an opt-out workflow, lacks error handling and has hardcoded values, but it includes everything to get started with a Consentor plugin.
 
 #### License
 
